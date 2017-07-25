@@ -1,26 +1,38 @@
 package com.gm.baseproject;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
-import com.gm.baseproject.util.HttpNetUtil;
+import com.gm.baseproject.entity.Login;
+import com.gm.baseproject.frame.BaseActivity;
+import com.gm.baseproject.frame.retrofit.NetCallback;
+import com.gm.baseproject.frame.retrofit.ZNCKService;
 
-public class MainActivity extends AppCompatActivity implements HttpNetUtil.Networkreceiver {
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("name", "superAdmin");
+        map.put("password", "123456");
         findViewById(R.id.txt_hw).setOnClickListener((v) -> {
-                    System.out.println(v.getId());
-                    System.out.println(v.getLayerType());
+                    ZNCKService.INSTANCE.getZNCkApi().login(map).enqueue(new NetCallback<Login>().GetCallback());
                 }
         );
     }
 
-    @Override
-    public void onConnected(boolean collect) {
-        System.out.println("&&&&&&&&&&&&&&"+collect);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void login(Login result) {
+        Toast.makeText(this, result.getUserId(), Toast.LENGTH_SHORT).show();
     }
+
 }
